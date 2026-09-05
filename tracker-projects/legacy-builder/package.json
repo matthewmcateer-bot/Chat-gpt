@@ -1,0 +1,18 @@
+{
+  "name": "trackerdronebuilder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@polyend/tracker-lib": "^0.1.2",
+    "fft.js": "^4.0.4",
+    "wavefile": "^11.0.0"
+  }
+}

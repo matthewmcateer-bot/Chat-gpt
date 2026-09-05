@@ -1,0 +1,51 @@
+hashvalue(v) { h = sin(v * 14.171 + 91.733) * 43758.5453; return h - floor(h); }
+Param run(0, min=0, max=1);
+Param hold(0, min=0, max=1);
+Param duration(8, min=1, max=40);
+Param intensity(0.68, min=0, max=1);
+Param position(0, min=0, max=1);
+Param autoposition(1, min=0, max=1);
+Param seed(211, min=1, max=9999);
+History phase(0);
+History elapsed(0);
+History breathphase(0);
+History eventage(100);
+History lastsecond(0);
+History direction(0);
+History thinphase(0);
+active = (run > 0.5) * (hold < 0.5);
+elapsed = elapsed + active / samplerate;
+phase = wrap(phase + active / (samplerate * duration * 60), 0, 1);
+choice = hashvalue(floor(elapsed / 28) + seed);
+rate = 0.012;
+if (choice > 0.55) { rate = 0.026; }
+if (choice > 0.82) { rate = 0.065; }
+if (choice > 0.95) { rate = 0.16; }
+if (choice > 0.995) { rate = 0.40; }
+breathphase = wrap(breathphase + active * rate / samplerate, 0, 1);
+second = floor(elapsed);
+if (second > lastsecond && hashvalue(second + seed * 3) < 0.10) {
+    eventage = 0;
+    direction = hashvalue(second + seed * 7) > 0.5;
+}
+lastsecond = second;
+eventage = eventage + active / samplerate;
+thinphase = wrap(thinphase + active * 0.0025 / samplerate, 0, 1);
+breath = 0.5 + 0.5 * sin(twopi * breathphase);
+thin = 0.18 + 0.82 * pow(0.5 + 0.5 * sin(twopi * thinphase + 1.57), 2);
+form = position;
+if (autoposition > 0.5) { form = phase; }
+field = smoothstep(0, 0.24, form) * (1 - smoothstep(0.38, 0.58, form));
+fracturestage = smoothstep(0.29, 0.49, form) * (1 - smoothstep(0.61, 0.75, form));
+voidstage = smoothstep(0.58, 0.71, form) * (1 - smoothstep(0.81, 0.91, form));
+burststage = smoothstep(0.82, 0.97, form);
+a = max(0, 1 - abs(eventage - (0.15 + direction * 0.8)) / 0.15);
+b = max(0, 1 - abs(eventage - (0.55)) / 0.30);
+c = max(0, 1 - abs(eventage - (0.95 - direction * 0.8)) / 0.15);
+out1 = in1;
+out2 = in2;
+out3 = clip((0.24 + field * 0.5 + voidstage * 0.6 + breath * 0.1) * intensity, 0, 1);
+out4 = clip((0.08 + fracturestage * 0.55 + burststage * 0.4 + a * 0.3) * intensity, 0, 1);
+out5 = clip((0.12 + breath * 0.35 + fracturestage * 0.2 + b * 0.4) * intensity, 0, 1);
+out6 = clip((0.38 + voidstage * 0.4 + (1 - breath) * 0.2) * intensity, 0, 1);
+out7 = clip((0.2 + field * 0.3 + burststage * 0.5 + c * 0.35) * thin * intensity, 0, 1);

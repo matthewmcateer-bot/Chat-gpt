@@ -1,0 +1,8 @@
+node_modules/
+__pycache__/
+*.wav
+*.pti
+*.zip
+backups/
+output/
+emergent-properties/devices/
